@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>upload — inspiration</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="tools/tool.css">
+</head>
+<body>
+    <header>
+        <a href="index.html" class="site-title">inspiration</a>
+        <div class="header-controls">
+            <span style="font-size:12px; opacity:0.7;">local upload</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="local-page">
+            <h1>add to the moodboard</h1>
+
+            <form id="upload-form">
+                <div class="form-field">
+                    <label for="image-input">image</label>
+                    <input type="file" id="image-input" accept="image/png,image/jpeg,image/webp,image/gif">
+                    <div class="hint">png / jpg / webp / gif — max 10MB</div>
+                    <div class="preview" id="image-preview" hidden>
+                        <img id="preview-img" alt="preview">
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label for="title-input">title</label>
+                    <input type="text" id="title-input" placeholder="evangelion unit-01">
+                    <div class="slug-preview" id="slug-preview"></div>
+                </div>
+
+                <div class="form-field">
+                    <label for="description-input">description</label>
+                    <textarea id="description-input" placeholder="why does this inspire you?"></textarea>
+                </div>
+
+                <div class="form-field">
+                    <label for="related-input">related (optional)</label>
+                    <input type="text" id="related-input" placeholder="comma-separated slugs, e.g. nike-code-03, oakley-plantaris">
+                    <div class="hint">only existing posts will be linked</div>
+                </div>
+
+                <div class="actions">
+                    <button type="button" id="save-btn">save locally</button>
+                    <button type="button" id="push-btn">push to repo</button>
+                </div>
+            </form>
+
+            <div class="result" id="result" hidden></div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="index.html">back to grid</a>
+            <a href="manage">manage posts</a>
+        </div>
+        <div>local tool — never deployed</div>
+    </footer>
+
+    <script src="tools/tool.js"></script>
+    <script>
+        // ---------- state ----------
+        let selectedImage = null; // data URL string
+        let lastSlug = null;
+
+        const $ = id => document.getElementById(id);
+        const fileInput = $('image-input');
+        const titleInput = $('title-input');
+        const descInput = $('description-input');
+        const relatedInput = $('related-input');
+        const previewBox = $('image-preview');
+        const previewImg = $('preview-img');
+        const slugPreview = $('slug-preview');
+        const resultBox = $('result');
+        const saveBtn = $('save-btn');
+        const pushBtn = $('push-btn');
+
+        // ---------- image pick + validation ----------
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files[0];
+            if (!file) { selectedImage = null; previewBox.hidden = true; return; }
+
+            const okTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+            if (!okTypes.includes(file.type)) {
+                showResult(resultBox, `error: unsupported type "${file.type}" — use png, jpg, webp or gif`, true);
+                fileInput.value = '';
+                return;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                showResult(resultBox, 'error: image too large (max 10MB)', true);
+                fileInput.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = () => {
+                selectedImage = reader.result;
+                previewImg.src = selectedImage;
+                previewBox.hidden = false;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // ---------- live slug preview ----------
+        titleInput.addEventListener('input', () => {
+            slugPreview.textContent = titleInput.value.trim()
+                ? `slug: ${slugify(titleInput.value.trim())}`
+                : '';
+        });
+
+        // ---------- save locally ----------
+        saveBtn.addEventListener('click', async () => {
+            const title = titleInput.value.trim();
+            const desc = descInput.value.trim();
+            const related = relatedInput.value.trim();
+
+            if (!selectedImage) { showResult(resultBox, 'error: choose an image first', true); return; }
+            if (!title) { showResult(resultBox, 'error: title is required', true); return; }
+            if (!desc) { showResult(resultBox, 'error: description is required', true); return; }
+
+            saveBtn.disabled = true;
+            showResult(resultBox, 'saving locally…');
+
+            try {
+                const res = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title,
+                        description: desc,
+                        image: selectedImage,
+                        related
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    showResult(resultBox, `error: ${data.error || 'upload failed'}`, true);
+                    return;
+                }
+                lastSlug = data.slug;
+                showResult(resultBox, data.message + '\n\n' + data.url);
+            } catch (e) {
+                showResult(resultBox, 'error: ' + e.message + ' — is the local server running?', true);
+            } finally {
+                saveBtn.disabled = false;
+            }
+        });
+
+        // ---------- push to repo ----------
+        pushBtn.addEventListener('click', async () => {
+            pushBtn.disabled = true;
+            showResult(resultBox, 'checking git status…', false, true);
+
+            try {
+                const res = await fetch('/api/push', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: lastSlug ? `add: ${lastSlug}` : 'add: new post'
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    showResult(resultBox, `error: ${data.error}\n\n${data.output || ''}`, true);
+                    return;
+                }
+                showResult(resultBox, data.output || data.message);
+            } catch (e) {
+                showResult(resultBox, 'error: ' + e.message + ' — is the local server running?', true);
+            } finally {
+                pushBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

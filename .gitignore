@@ -1,0 +1,18 @@
+# The tool pages (tools/*.html) are tracked ON PURPOSE: a clone needs them to use /upload
+# and /manage, and they cannot reach the published site anyway. The real boundary is not
+# .gitignore — it is the deploy allowlist in .github/workflows/deploy.yml, which builds
+# _site/ from an explicit file list (index.html post.html css js assets). Do not re-add
+# ignore rules for the tool pages.
+
+# temp file written by atomic posts.json writes
+js/posts.json.tmp
+
+# python
+__pycache__/
+*.pyc
+
+# os
+.DS_Store
+
+# docs (also holds .dev/trash, where deletes are stashed for undo)
+.dev/

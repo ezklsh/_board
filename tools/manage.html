@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>manage — inspiration</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="tools/tool.css">
+    <style>
+        /* each post is its own closed box */
+        .post-row {
+            border: 1px solid var(--border);
+            padding: 16px;
+            margin-bottom: 8px;
+        }
+
+        .post-summary { display: flex; gap: 16px; align-items: center; }
+        .post-summary .thumb {
+            width: 72px; height: 72px; object-fit: cover; flex: 0 0 auto;
+            border: 1px solid var(--border);
+        }
+        .post-meta { flex: 1; min-width: 0; }
+        .post-meta .post-title { font-size: 14px; }
+        .post-meta .post-slug { font-size: 11px; opacity: 0.6; word-break: break-all; }
+        .post-buttons { display: flex; gap: 8px; flex: 0 0 auto; }
+        .post-buttons button, .post-buttons a {
+            font-family: inherit; font-size: 12px; color: var(--fg); background: var(--bg);
+            border: 1px solid var(--border); padding: 6px 12px; cursor: pointer;
+            text-decoration: none;
+        }
+        .post-buttons button:hover, .post-buttons a:hover { background: var(--fg); color: var(--bg); }
+
+        .post-edit { margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border); }
+        .post-edit .form-field textarea { min-height: 120px; }
+        .post-edit .actions { margin-top: 16px; }
+
+        .count { font-size: 12px; opacity: 0.6; margin-bottom: 8px; }
+
+        /* bottom controls, mirroring the upload page */
+        .manage-controls { margin-top: 32px; }
+        .manage-controls .stash-option {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+        .manage-controls .stash-option .hint {
+            display: block;
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+        .manage-controls .dirty {
+            font-size: 12px;
+            opacity: 0.7;
+            align-self: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="site-title">inspiration</a>
+        <div class="header-controls">
+            <span style="font-size:12px; opacity:0.7;">local manage</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="local-page">
+            <h1>manage posts</h1>
+
+            <div class="count" id="count"></div>
+            <div id="posts"></div>
+
+            <div class="manage-controls">
+                <label class="stash-option">
+                    <input type="checkbox" id="delete-images" checked>
+                    move image files to trash on delete
+                    <span class="hint">restorable until you push · shared images are kept</span>
+                </label>
+
+                <div class="actions">
+                    <button type="button" id="undo-btn" disabled>restore last deleted</button>
+                    <button type="button" id="push-btn">push to repo</button>
+                    <span class="dirty" id="dirty" hidden>unsaved changes pending push</span>
+                </div>
+            </div>
+
+            <div class="result" id="result" hidden></div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="index.html">back to grid</a>
+        </div>
+        <div>local tool — never deployed</div>
+    </footer>
+
+    <script src="tools/tool.js"></script>
+    <script src="tools/manage.js"></script>
+</body>
+</html>
