@@ -1,4 +1,4 @@
-# moodboard
+# _board
 
 A minimal, static image moodboard: a masonry grid of the things that inspire you, each with
 its own detail page. Plain HTML/CSS/JS — no framework, no build step, no database.
@@ -40,9 +40,6 @@ published until you push.
 the grid stays blank until you add something. Add your first post from `/upload` and
 press **push to repo** when you are happy with it.
 
-**Renaming the site** from "inspiration": the name appears in the `<title>`, the header link
-and the footer of `index.html` and `post.html`. Everything else is generic.
-
 ## How authentication works — the tool stores no credentials
 
 The tool never asks for a password and keeps no token. When you press push it runs plain
@@ -55,24 +52,6 @@ gh auth login          # one way: installs a credential helper and stores a toke
 
 If a push fails because git has no credentials for the host, the tool tells you and stops —
 it never hangs waiting for a prompt.
-
-## Requirements
-
-Python 3 (standard library only). **No `node`, no npm, no dependencies.**
-
-The site loads its store with `fetch()`, so it must be served over HTTP. Opening
-`index.html` straight from disk shows a message telling you to run the tool server.
-
-## Where images live
-
-In the repo, by default: zero setup, versioned with your content, no external accounts. That
-is the right default up to a few thousand optimised images. If your collection outgrows it,
-the field can hold an absolute URL as easily as a relative path, so moving to S3 /
-Cloudflare R2 / Backblaze B2 later is a content change, not a rewrite.
-
-Two notes: keep uploaded images reasonably sized (GitHub Pages serves them as-is, and its
-soft limit is ~1GB per site, ~100GB/month of bandwidth), and **do not use Git LFS** — Pages
-does not serve LFS objects.
 
 ## Tests
 
