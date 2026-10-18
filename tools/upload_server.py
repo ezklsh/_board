@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""inspiration — local upload server (Phase 4).
+"""_board — local upload server (Phase 4).
 
 Serves the static site AND provides the upload tool.
 
@@ -741,7 +741,7 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
     server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
-    print(f"inspiration local server → http://localhost:{port}")
+    print(f"_board local server → http://localhost:{port}")
     print(f"  site:   http://localhost:{port}/")
     print(f"  upload: http://localhost:{port}/upload")
     print(f"  manage: http://localhost:{port}/manage")

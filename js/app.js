@@ -1,5 +1,5 @@
 /* ============================================
-   inspiration — app logic
+   _board — app logic
    Tasks 4-7: grid render, detail render,
    dark mode, grid size controls
    ============================================ */
@@ -137,7 +137,7 @@ function renderDetail() {
     const post = POSTS.find(p => p.slug === slug);
 
     if (!post) {
-        document.title = 'not found — inspiration';
+        document.title = 'not found — _board';
         const title = document.getElementById('detail-title');
         const desc = document.getElementById('detail-description');
         const section = document.getElementById('related-section');
@@ -147,7 +147,7 @@ function renderDetail() {
         return;
     }
 
-    document.title = `${post.title} — inspiration`;
+    document.title = `${post.title} — _board`;
     document.getElementById('detail-title').textContent = post.title;
     document.getElementById('detail-description').innerHTML = post.description;
     document.getElementById('detail-gallery').innerHTML = post.gallery.map(img =>

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Unit tests for the local tool server helpers.
 
-Run:  cd ~/Documents/Projects/Websites/inspiration
+Run:  cd ~/Documents/Projects/Websites/_board
       python3 -m unittest discover -s tools -p "test_*.py" -v
 
 The store is js/posts.json. Tests never assert a post count or a specific slug: the content
